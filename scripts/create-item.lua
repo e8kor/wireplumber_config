@@ -30,6 +30,14 @@ function configProperties(node)
     ["user.node.target"] = np["user.node.target"] or nil,
   }
 
+  if np["user.target.media.role"] then
+    properties["user.target.media.role"] = np["user.target.media.role"]
+  end
+  
+  if np["user.media.role"] then
+    properties["user.media.role"] = np["user.media.role"]
+  end
+  
   for k, v in pairs(np) do
     if k:find("^node") or k:find("^stream") or k:find("^media") then
       properties[k] = v

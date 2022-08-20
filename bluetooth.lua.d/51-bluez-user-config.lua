@@ -5,11 +5,8 @@ local rule_trekz = {
       },
     },
     apply_properties = {
-      ["node.description"] = "Trekz Headset",
-      ["node.nick"] = "headset_aftershokz",
-      ["node.autoconnect"] = true,
-      ["user.managed"] = true,
-      ["user.node.target"] = "cable-a-source",
+      ["node.name"] = "Trekz Headset",
+      ["user.target.media.role"] = "media",
     },
   }
 
@@ -20,11 +17,8 @@ local rule_trekz = {
       },
     },
     apply_properties = {
-      ["node.description"] = "Onyx Headset",
-      ["node.nick"] = "headset_bose",
-      ["node.autoconnect"] = true,
-      ["user.managed"] = true,
-      ["user.node.target"] = "cable-a-source",
+      ["node.name"] = "Bose Headset",
+      ["user.target.media.role"] = "media",
     },
   }
 

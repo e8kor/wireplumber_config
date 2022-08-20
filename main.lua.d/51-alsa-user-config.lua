@@ -5,11 +5,8 @@ local rule_microphone = {
     },
   },
   apply_properties = {
-    ["node.description"] = "HyperX Microphone",
-    ["node.nick"] = "mic_hyperx",
-    ["node.autoconnect"] = true,
-    ["user.managed"] = true,
-    ["user.node.target"] = "cable-b-sink",
+    ["node.name"] = "HyperX Microphone",
+    ["user.target.media.role"] = "comm",
   },
 }
 
@@ -20,11 +17,8 @@ local rule_headset = {
     },
   },
   apply_properties = {
-    ["node.description"] = "HyperX Jack",
-    ["node.nick"] = "headset_hyperx",
-    ["node.autoconnect"] = true,
-    ["user.managed"] = true,
-    ["user.node.target"] = "cable-a-source",
+    ["node.name"] = "HyperX Stereo",
+    ["user.target.media.role"] = "media",
   },
 }
 
