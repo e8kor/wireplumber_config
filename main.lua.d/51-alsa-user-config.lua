@@ -6,7 +6,7 @@ local rule_microphone = {
   },
   apply_properties = {
     ["node.name"] = "HyperX Microphone",
-    ["user.target.media.role"] = "comm",
+    ["media.user.target.role"] = "comm:work",
   },
 }
 
@@ -18,7 +18,7 @@ local rule_headset = {
   },
   apply_properties = {
     ["node.name"] = "HyperX Stereo",
-    ["user.target.media.role"] = "media",
+    ["media.user.target.role"] = "media:work",
   },
 }
 
@@ -26,6 +26,17 @@ table.insert(alsa_monitor.rules, rule_microphone)
 table.insert(alsa_monitor.rules, rule_headset)
 
 -- Disable unused devices
+
+local rule_disable_brio = {
+  matches = {
+    {
+      { "node.description", "equals", "BRIO 4K Stream Edition Digital Stereo (IEC958)" },
+    },
+  },
+  apply_properties = {
+    ["node.disabled"] = true,
+  }
+}
 
 local rule_disable_usb_aad = {
   matches = {
@@ -86,3 +97,4 @@ table.insert(alsa_monitor.rules, rule_disable_usb_ga102)
 table.insert(alsa_monitor.rules, rule_disable_usb_aad)
 table.insert(alsa_monitor.rules, rule_disable_usb_pnp_1)
 table.insert(alsa_monitor.rules, rule_disable_usb_pnp_2)
+table.insert(alsa_monitor.rules, rule_disable_brio)

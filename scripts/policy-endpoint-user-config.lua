@@ -1,5 +1,23 @@
 local config = ... or {}
 
+function split(s, delimiter)
+    result = {}
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        result[match] = true
+    end
+    return result;
+end
+
+function intersect(m,n)
+    local intersection = {}
+    for item, _ in pairs (m) do
+        if n [item] then
+            intersection [item] = true
+        end
+    end
+    return next(intersection) ~= nil
+end
+
 function createLink (si, si_target_ep)
     local out_item = nil
     local in_item = nil
@@ -45,17 +63,23 @@ function createLink (si, si_target_ep)
     si_link:activate(Feature.SessionItem.ACTIVE)
 end
 
-function findTarget(key_name, lookup_role, direction)
+function findTarget(lookup_roles, key_name, direction)
     local targets = {}
     for target in user_roles_om:iterate() do
-        local node = target:get_associated_proxy("node")
-        local nick = node.properties["node.name"]
-        local role = node.properties[key_name]
-        local id = tostring(target.id)
-        Log.info("checking target node: " .. nick)
-        if (lookup_role == role and target.properties["item.node.direction"]) == direction then
-            Log.info("found target node: " .. nick)
-            table.insert(targets, target)
+        local node_name = target.properties["node.name"]
+        if target.properties[key_name] then
+            local node = target:get_associated_proxy("node")
+            Log.info("checking target node: " .. node_name)
+            local role_raw = node.properties[key_name]
+            Log.info("..  with roles: " .. role_raw)
+            local roles = split(role_raw, ":")
+            local id = tostring(target.id)
+            if intersect(lookup_roles, roles) and target.properties["item.node.direction"] == direction then
+                Log.info("found target node: " .. node_name)
+                table.insert(targets, target)
+            end
+        else 
+            Log.info("skinning node: " .. node_name)
         end
     end
     return targets
@@ -66,27 +90,29 @@ function createNodeLink(si, lookup_key, target_key)
 
     local node_id = si.id
     local node_name = node.properties['node.name']
-    local lookup_role = si.properties[lookup_key]
-    Log.info("handling: " ..  node_name .. ":" .. node_id .. ", expected target role: " .. lookup_role)
+    local lookup_role_raw = si.properties[lookup_key]
+    Log.info("handling: " ..  node_name .. ":" .. node_id .. ", expected target role: " .. lookup_role_raw)
+    local lookup_roles = split(lookup_role_raw, ":")
     local visited = {}
     for link in links_om:iterate() do
         local out_id = tonumber(link.properties["out.item.id"])
         local in_id  = tonumber(link.properties["in.item.id"])
-        if out_id == node_id then
+        if out_id == node_id or in_id == node_id then
             Log.info("already linked: " .. in_id .. " <-> " .. out_id)
+        end
+        if out_id == node_id then
             table.insert(visited, link.properties["out.item.id"], link)
         elseif in_id == node_id then
-            Log.info("already linked: " .. in_id .. " <-> " .. out_id)
             table.insert(visited, link.properties["in.item.id"], link)
         end
     end
     local direction = ""
     if si.properties["item.node.direction"] == "output" then
-        direction = "input" 
+        direction = "input"
     else
         direction = "output"
     end
-    local targets = findTarget(target_key, lookup_role, direction)
+    local targets = findTarget(lookup_roles, target_key, direction)
     for _, target in ipairs(targets) do
         local target_node_id = target.id
         local target_node = target:get_associated_proxy("node")
@@ -111,11 +137,11 @@ links_om = ObjectManager {
 user_roles_om = ObjectManager {
     Interest {
         type = "SiLinkable",
-        Constraint { "user.target.media.role", "is-present"},
+        Constraint { "media.user.target.role", "is-present"},
     },
     Interest {
         type = "SiLinkable",
-        Constraint { "user.media.role", "is-present" },
+        Constraint { "media.user.role", "is-present" },
     }
 }
 
@@ -123,10 +149,10 @@ user_roles_om:connect("object-added", function (om, si)
     local props = si.properties
     Log.info(string.format("user-config: handling item: %s (%s)", tostring(props["node.name"]), tostring(props["node.id"])))
     
-    if props["user.target.media.role"] then
-        createNodeLink(si, "user.target.media.role", "user.media.role")
-    elseif props["user.media.role"] then
-        createNodeLink(si, "user.media.role", "user.target.media.role")
+    if props["media.user.target.role"] then
+        createNodeLink(si, "media.user.target.role", "media.user.role")
+    elseif props["media.user.role"] then
+        createNodeLink(si, "media.user.role", "media.user.target.role")
     else
         Log.info("unable to recognize node skipping: " .. tostring(si))
     end

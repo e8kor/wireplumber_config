@@ -30,12 +30,12 @@ function configProperties(node)
     ["user.node.target"] = np["user.node.target"] or nil,
   }
 
-  if np["user.target.media.role"] then
-    properties["user.target.media.role"] = np["user.target.media.role"]
+  if np["media.user.target.role"] then
+    properties["media.user.target.role"] = np["media.user.target.role"]
   end
   
-  if np["user.media.role"] then
-    properties["user.media.role"] = np["user.media.role"]
+  if np["media.user.role"] then
+    properties["media.user.role"] = np["media.user.role"]
   end
   
   for k, v in pairs(np) do
