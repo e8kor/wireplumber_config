@@ -75,6 +75,6 @@ function default_policy.enable()
   load_script("policy-bluetooth.lua", bluetooth_policy.policy)
 
   -- User wiring config
-  -- load_script("policy-endpoint-user-config.lua", default_policy.policy)
+  load_script("policy-endpoint-user-config.lua", default_policy.policy)
 
 end
