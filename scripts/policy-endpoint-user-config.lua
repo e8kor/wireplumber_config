@@ -151,11 +151,11 @@ end
 function possibleTargetMediaClasses(si)
     local media_class = si.properties["media.class"]
     local media_classes = {
-        ["Audio/Source"] = { "Audio/Source/Virtual", "Audio/Sink"},
+        ["Audio/Source"] = { "Audio/Source/Virtual" },
         ["Stream/Output/Audio"] = { "Audio/Sink" },
 
-        ["Audio/Sink"] = { "Audio/Source/Virtual", "Audio/Source" },
-        ["Stream/Input/Audio"] = { "Audio/Source" }
+        ["Audio/Sink"] = { "Audio/Sink" },
+        ["Stream/Input/Audio"] = { "Audio/Source/Virtual" }
     }
     return media_classes[media_class] or {}
 end
@@ -207,6 +207,22 @@ function createNodeLink(si, lookup_key, target_key)
     end
 end
 
+function unhandleLinkable(si, isAll)
+    local node = si:get_associated_proxy("node")
+    local props = node.properties
+    Log.info(string.format("user-config: unhandling item: %s (%s)", tostring(props["node.name"]), tostring(si.id)))
+    -- remove any links associated with this item
+    for silink in links_om:iterate() do
+        local out_id = tonumber (silink.properties["out.item.id"])
+        local in_id = tonumber (silink.properties["in.item.id"])
+        if (out_id == si.id or in_id == si.id) and (isAll or not silink.properties["media.user.managed"]) then
+                silink:remove ()
+                Log.info (silink, "... link removed")
+        end
+    end
+end
+
+
 links_om = ObjectManager {
     Interest {
         type = "SiLink",
@@ -250,22 +266,12 @@ client_om = ObjectManager {
 }
 
 client_om:connect("object-added", function (om, si)
+    unhandleLinkable(si, false)
     createNodeLink(si, "media.user.target.role", "media.user.role")
 end)
 
 client_om:connect("object-removed", function(om, si)
-    local node = si:get_associated_proxy("node")
-    local props = node.properties
-    Log.info(string.format("user-config: unhandling item: %s (%s)", tostring(props["node.name"]), tostring(props["node.id"])))
-    -- remove any links associated with this item
-    for silink in links_om:iterate() do
-        local out_id = tonumber (silink.properties["out.item.id"])
-        local in_id = tonumber (silink.properties["in.item.id"])
-        if out_id == props["node.id"] or in_id == props["node.id"] then
-            silink:remove ()
-            Log.info (silink, "... link removed")
-        end
-    end
+    unhandleLinkable(si, true)
 end)
 
 client_om:activate()

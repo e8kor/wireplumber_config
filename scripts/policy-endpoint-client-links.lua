@@ -42,7 +42,7 @@ function getAction(dominant_role, other_role)
 end
 
 function restoreVolume(role, media_class)
-  if not mixer_api then return end
+  if not mixer_api or not role or not media_class then return end
 
   local ep = endpoints_om:lookup {
     Constraint { "media.role", "=", role, type = "pw" },
