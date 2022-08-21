@@ -151,7 +151,7 @@ function checkLinkable (si)
   -- only handle stream session items
   local media_class = node.properties["media.class"]
   if not media_class or not string.find (media_class, "Stream") then
-    Log.message("node " .. node.properties["node.name"] .. " is not session item")
+    Log.debug("node " .. node.properties["node.name"] .. " is not session item")
     return false
   end
 
@@ -165,7 +165,7 @@ function checkLinkable (si)
 end
 
 function handleLinkable (si)
-  Log.message("for si: " .. si.id)
+  Log.debug("for si: " .. si.id)
   if not checkLinkable (si) then
     return
   end

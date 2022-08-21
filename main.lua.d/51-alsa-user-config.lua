@@ -6,7 +6,7 @@ local rule_microphone = {
   },
   apply_properties = {
     ["node.name"] = "HyperX Microphone",
-    ["media.user.target.role"] = "comm:work",
+    ["media.user.target.role"] = "work;comm",
   },
 }
 
@@ -18,7 +18,7 @@ local rule_headset = {
   },
   apply_properties = {
     ["node.name"] = "HyperX Stereo",
-    ["media.user.target.role"] = "media:work",
+    ["media.user.target.role"] = "work;comm;media",
   },
 }
 
