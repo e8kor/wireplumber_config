@@ -135,8 +135,9 @@ function findTargetNode(lookup_node_name)
     local lookup_node_names = split(lookup_node_name, ";")
     local targets = {}
     for target in host_om:iterate() do
-        local node_name = target.properties["node.name"]
-        if node_name and node_name == contains(lookup_node_names, node_name) then
+        local np = getProperties(target)
+        local node_name = np["node.name"]
+        if node_name and contains(lookup_node_names, node_name) then
             table.insert(targets,target)
         end
     end

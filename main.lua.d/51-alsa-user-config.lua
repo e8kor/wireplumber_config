@@ -32,6 +32,9 @@ local rule_disable_brio = {
     {
       { "node.description", "equals", "BRIO 4K Stream Edition Digital Stereo (IEC958)" },
     },
+    {
+      { "node.description", "equals", "BRIO 4K Stream Edition Analog Stereo" },
+    },
   },
   apply_properties = {
     ["node.disabled"] = true,
