@@ -6,7 +6,7 @@ local rule_trekz = {
     },
     apply_properties = {
       ["node.name"] = "Trekz Headset",
-      ["media.user.target.role"] = "work;comm;media",
+      ["media.user.target.role"] = "work;comm;media;soundboard",
     },
   }
 
@@ -18,7 +18,7 @@ local rule_trekz = {
     },
     apply_properties = {
       ["node.name"] = "Bose Headset",
-      ["media.user.target.role"] = "work;comm;media",
+      ["media.user.target.role"] = "work;comm;media;soundboard",
     },
   }
 

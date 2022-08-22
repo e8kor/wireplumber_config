@@ -6,13 +6,45 @@
 -- SPDX-License-Identifier: MIT
 
 -- Receive script arguments from config.lua
-local config = ... or {}
+local user_config = ... or {}
+local config = user_config.policy or {}
 
 items = {}
+-- preprocess rules and create Interest objects
+for _, r in ipairs(user_config.rules or {}) do
+  r.interests = {}
+  for _, i in ipairs(r.matches) do
+    local interest_desc = { type = "properties" }
+    for _, c in ipairs(i) do
+      c.type = "pw"
+      table.insert(interest_desc, Constraint(c))
+    end
+    local interest = Interest(interest_desc)
+    table.insert(r.interests, interest)
+  end
+  r.matches = nil
+end
+
+-- applies properties from config.rules when asked to
+function rulesApplyProperties(properties)
+  for _, r in ipairs(user_config.rules or {}) do
+    if r.apply_properties then
+      for _, interest in ipairs(r.interests) do
+        if interest:matches(properties) then
+          for k, v in pairs(r.apply_properties) do
+            properties[k] = v
+          end
+        end
+      end
+    end
+  end
+  return properties
+end
 
 function configProperties(node)
   local np = node.properties
-  local properties = {
+  local properties = rulesApplyProperties({
+    ["item.node.name"] = np["node.name"],
     ["item.node"] = node,
     ["item.plugged.usec"] = GLib.get_monotonic_time(),
     ["item.features.no-dsp"] = config["audio.no-dsp"],
@@ -28,7 +60,7 @@ function configProperties(node)
     ["card.profile.device"] = np["card.profile.device"],
     ["user.managed"] = np["user.managed"] or false,
     ["user.node.target"] = np["user.node.target"] or nil,
-  }
+  })
 
   for k, v in pairs(np) do
     if k:find("^node") or k:find("^stream") or k:find("^media") then

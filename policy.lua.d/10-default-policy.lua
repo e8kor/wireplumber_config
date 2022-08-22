@@ -2,6 +2,7 @@ default_policy = {}
 default_policy.enabled = true
 default_policy.properties = {}
 default_policy.endpoints = {}
+default_policy.rules = {}
 
 default_policy.policy = {
   ["move"] = true,   -- moves session items when metadata target.node changes
@@ -59,7 +60,10 @@ function default_policy.enable()
   load_script("static-endpoints.lua", default_policy.endpoints)
 
   -- Create items for nodes that appear in the graph
-  load_script("create-item.lua", default_policy.policy)
+  load_script("create-item.lua", {
+    policy = default_policy.policy,
+    rules = default_policy.rules
+  })
 
   -- Link nodes to each other to make media flow in the graph
   load_script("policy-node.lua", default_policy.policy)
