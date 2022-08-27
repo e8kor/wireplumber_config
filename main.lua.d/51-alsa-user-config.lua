@@ -22,8 +22,22 @@ local rule_headset = {
   },
 }
 
+
+local rule_soundux = {
+  matches = {
+    {
+      { "node.name", "equals", "soundux_sink" },
+    },
+  },
+  apply_properties = {
+    ["media.user.role"] = "soundboard",
+    ["media.user.target.object.name"] = "Communication Source;Communication Sink",
+  },
+}
+
 table.insert(alsa_monitor.rules, rule_microphone)
 table.insert(alsa_monitor.rules, rule_headset)
+table.insert(alsa_monitor.rules, rule_soundux)
 
 -- Disable unused devices
 
