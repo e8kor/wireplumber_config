@@ -131,7 +131,7 @@ function isLinked(si_target)
   local linked = false
   local exclusive = false
 
-  for l in links_om:iterate() do
+  for l in LinksOM:iterate() do
     local p = l.properties
     local out_id = tonumber(p["out.item.id"])
     local in_id = tonumber(p["in.item.id"])
@@ -216,7 +216,7 @@ function canLink (properties, si_target)
       Constraint { "node.link-group", "=", target_link_group },
     } do
       -- iterate their peers and return false if one of them cannot link
-      for silink in links_om:iterate() do
+      for silink in LinksOM:iterate() do
         local out_id = tonumber(silink.properties["out.item.id"])
         local in_id = tonumber(silink.properties["in.item.id"])
         if out_id == n.id or in_id == n.id then
@@ -528,12 +528,12 @@ function findUndefinedTarget (si)
 end
 
 function lookupLink (si_id, si_target_id)
-  local link = links_om:lookup {
+  local link = LinksOM:lookup {
     Constraint { "out.item.id", "=", si_id },
     Constraint { "in.item.id", "=", si_target_id }
   }
   if not link then
-    link = links_om:lookup {
+    link = LinksOM:lookup {
       Constraint { "in.item.id", "=", si_id },
       Constraint { "out.item.id", "=", si_target_id }
     }
@@ -776,7 +776,7 @@ function unhandleLinkable (si)
       tostring(si_props["node.name"]), tostring(si_props["node.id"])))
 
   -- remove any links associated with this item
-  for silink in links_om:iterate() do
+  for silink in LinksOM:iterate() do
     local out_id = tonumber (silink.properties["out.item.id"])
     local in_id = tonumber (silink.properties["in.item.id"])
     if out_id == si.id or in_id == si.id then
@@ -828,7 +828,7 @@ pending_linkables_om = ObjectManager {
   }
 }
 
-links_om = ObjectManager {
+LinksOM = ObjectManager {
   Interest {
     type = "SiLink",
     -- only handle links created by this policy
@@ -977,5 +977,5 @@ endpoints_om:activate()
 clients_om:activate()
 linkables_om:activate()
 pending_linkables_om:activate()
-links_om:activate()
+LinksOM:activate()
 devices_om:activate()

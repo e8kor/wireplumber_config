@@ -142,7 +142,7 @@ function handleEndpoint (si_ep)
   end
 
   -- Check if item is linked to proper target, otherwise re-link
-  for link in links_om:iterate() do
+  for link in LinksOM:iterate() do
     local out_id = tonumber(link.properties["out.item.id"])
     local in_id = tonumber(link.properties["in.item.id"])
     if out_id == si_ep.id or in_id == si_ep.id then
@@ -181,7 +181,7 @@ function unhandleLinkable (si)
       tostring(si_props["node.name"]), tostring(si_props["node.id"])))
 
   -- remove any links associated with this item
-  for silink in links_om:iterate() do
+  for silink in LinksOM:iterate() do
     local out_id = tonumber (silink.properties["out.item.id"])
     local in_id = tonumber (silink.properties["in.item.id"])
     if out_id == si.id or in_id == si.id then
@@ -202,7 +202,7 @@ linkables_om = ObjectManager {
     Constraint { "active-features", "!", 0, type = "gobject" },
   }
 }
-links_om = ObjectManager {
+LinksOM = ObjectManager {
   Interest {
     type = "SiLink",
     -- only handle links created by this policy
@@ -231,4 +231,4 @@ end)
 
 endpoints_om:activate()
 linkables_om:activate()
-links_om:activate()
+LinksOM:activate()
