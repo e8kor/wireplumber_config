@@ -5,7 +5,19 @@ local rule_microphone = {
     },
   },
   apply_properties = {
-    ["node.name"] = "HyperX Microphone",
+    ["node.nick"] = "HyperX Microphone",
+    ["media.user.target.role"] = "work;comm;media",
+  },
+}
+
+local rule_rode_microphone = {
+  matches = {
+    {
+      { "node.name", "equals", "alsa_input.usb-R__DE_Microphones_Wireless_GO_II_RX_216F2176-01.analog-stereo" },
+    },
+  },
+  apply_properties = {
+    ["node.nick"] = "RODE Microphone",
     ["media.user.target.role"] = "work;comm;media",
   },
 }
@@ -17,7 +29,7 @@ local rule_headset = {
     },
   },
   apply_properties = {
-    ["node.name"] = "HyperX Stereo",
+    ["node.nick"] = "HyperX Headset out",
     ["media.user.target.role"] = "work;comm;media",
   },
 }
@@ -35,6 +47,7 @@ local rule_soundux = {
   },
 }
 
+table.insert(alsa_monitor.rules, rule_rode_microphone)
 table.insert(alsa_monitor.rules, rule_microphone)
 table.insert(alsa_monitor.rules, rule_headset)
 table.insert(alsa_monitor.rules, rule_soundux)
