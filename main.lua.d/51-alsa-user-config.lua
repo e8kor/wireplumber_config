@@ -130,7 +130,55 @@ local rule_hdmi = {
     },
   },
   apply_properties = {
-    ["node.nick"] = "Aorus HDMI",
+    ["node.nick"] = "Aorus Display HDMI",
+    ["node.disabled"] = true,
+  },
+}
+
+local rule_nvidia_hdmi = {
+  matches = {
+    {
+      { "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo.2" },
+    },
+  },
+  apply_properties = {
+    ["node.nick"] = "NVidia HDMI",
+    ["node.disabled"] = true,
+  },
+}
+
+local rule_aorus_hdmi = {
+  matches = {
+    {
+      { "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo.3" },
+    },
+  },
+  apply_properties = {
+    ["node.nick"] = "AORUS Display DP",
+    ["node.disabled"] = true,
+  },
+}
+
+local rule_loopback_pcm_input = {
+  matches = {
+    {
+      { "node.name", "equals", "alsa_input.platform-snd_aloop.0.analog-stereo" },
+    },
+  },
+  apply_properties = {
+    ["node.nick"] = "Build-in Audio Input",
+    ["node.disabled"] = true,
+  },
+}
+
+local rule_loopback_pcm_output = {
+  matches = {
+    {
+      { "node.name", "equals", "alsa_output.platform-snd_aloop.0.analog-stereo" },
+    },
+  },
+  apply_properties = {
+    ["node.nick"] = "Build-in Audio Output",
     ["node.disabled"] = true,
   },
 }
@@ -142,3 +190,7 @@ table.insert(alsa_monitor.rules, rule_usb_pnp_1)
 table.insert(alsa_monitor.rules, rule_usb_pnp_2)
 table.insert(alsa_monitor.rules, rule_brio)
 table.insert(alsa_monitor.rules, rule_hdmi)
+table.insert(alsa_monitor.rules, rule_nvidia_hdmi)
+table.insert(alsa_monitor.rules, rule_aorus_hdmi)
+table.insert(alsa_monitor.rules, rule_loopback_pcm_input)
+table.insert(alsa_monitor.rules, rule_loopback_pcm_output)
