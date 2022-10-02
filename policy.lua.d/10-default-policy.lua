@@ -3,9 +3,89 @@ default_policy.enabled = true
 default_policy.properties = {}
 default_policy.endpoints = {}
 default_policy.rules = {}
+default_policy.user_rules = {}
+
+default_policy.fallback = {
+  ["media.user.target.role"] = "media"
+}
+
+table.insert(default_policy.user_rules, {
+  name = "VirtualBoxVM",
+  matches = { {
+    { "application.binary.name", "equals", "VirtualBoxVM" },
+  }, {
+    { "application.process.binary", "equals", "VirtualBoxVM" },
+  } },
+  apply_properties = {
+    ["media.user.target.role"] = "work",
+  }
+})
+table.insert(default_policy.user_rules, {
+  name = "Firefox",
+  matches = { {
+    { "application.process.binary", "matches", "firefox*" }
+  } },
+  apply_properties = {
+    ["media.user.target.role"] = "media"
+  }
+})
+
+table.insert(default_policy.user_rules, {
+  name = "Chromium",
+  matches = { {
+    { "application.process.binary", "matches", "chrome*" }
+  } },
+  apply_properties = {
+    ["media.user.target.role"] = "media"
+  }
+})
+
+table.insert(default_policy.user_rules, {
+  name = "Telegram",
+  matches = { {
+    { "application.process.binary", "equals", "telegram-desktop" }
+  } },
+  apply_properties = {
+    ["media.user.target.role"] = "comm"
+  }
+})
+
+table.insert(default_policy.user_rules, {
+  name = "Totem Player",
+  matches = { {
+    { "application.process.binary", "equals", "totem" }
+  } },
+  apply_properties = {
+    ["media.user.target.role"] = "media"
+  }
+})
+
+table.insert(default_policy.user_rules, {
+  name = "Soundux Soundboard",
+  matches = { {
+    { "node.name", "equals", "soundux_sink" },
+  } },
+  apply_properties = {
+    ["node.autoconnect"] = false,
+    ["node.nick"]        = "Soundux Soundboard",
+    ["media.user.role"]  = "soundboard",
+  },
+})
+
+table.insert(default_policy.user_rules, {
+  name = "Bypass mapped objects",
+  matches = { {
+    { "media.user.role", "is-present" }
+  },{
+    { "media.user.target.role", "is-present" }
+  },{
+    { "media.user.target.object.name", "is-present" }
+  } },
+  apply_properties = { }
+})
 
 default_policy.policy = {
-  ["move"] = true,   -- moves session items when metadata target.node changes
+  ["move"] = true, -- moves session items when metadata target.node changes
   ["follow"] = true, -- moves session items to the default device when it has changed
 
   -- Whether to forward the ports format of filter stream nodes to their
@@ -35,7 +115,9 @@ bluetooth_policy.policy = {
   -- Application names correspond to application.name in stream properties.
   -- Applications which do not set media.role but which should be considered
   -- for role based profile switching can be specified here.
-  ["media-role.applications"] = { "Firefox", "Chromium input", "Google Chrome input", "Brave input", "Microsoft Edge input", "Vivaldi input", "ZOOM VoiceEngine", "Telegram Desktop", "telegram-desktop", "linphone", "Mumble" },
+  ["media-role.applications"] = { "Firefox", "Chromium input", "Google Chrome input", "Brave input",
+    "Microsoft Edge input", "Vivaldi input", "ZOOM VoiceEngine", "Telegram Desktop", "telegram-desktop", "linphone",
+    "Mumble" },
 }
 
 function default_policy.enable()
@@ -79,6 +161,10 @@ function default_policy.enable()
   load_script("policy-bluetooth.lua", bluetooth_policy.policy)
 
   -- User wiring config
-  load_script("policy-endpoint-user-config.lua", default_policy.policy)
+  load_script("policy-endpoint-user-config.lua", {
+    policy = default_policy.policy,
+    rules = default_policy.user_rules,
+    fallback = default_policy.fallback
+  })
 
 end

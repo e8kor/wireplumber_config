@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.globals": [
+        "SessionItem",
+        "Constraint",
+        "Interest",
+        "Feature",
+        "ObjectManager",
+        "Log",
+        "Features",
+        "GLib"
+    ]
+}

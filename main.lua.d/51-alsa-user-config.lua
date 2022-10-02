@@ -45,71 +45,6 @@ local rule_soundux = {
     ["media.user.target.object.name"] = "Communication Source;Communication Sink",
   },
 }
-
-table.insert(alsa_monitor.rules, rule_rode_microphone)
-table.insert(alsa_monitor.rules, rule_microphone)
-table.insert(alsa_monitor.rules, rule_headset)
-table.insert(alsa_monitor.rules, rule_soundux)
-
--- Disable unused devices
-
-local rule_brio = {
-  matches = {
-    {
-      { "node.description", "equals", "BRIO 4K Stream Edition Digital Stereo (IEC958)" },
-    },
-    {
-      { "node.description", "equals", "BRIO 4K Stream Edition Analog Stereo" },
-    },
-  },
-  apply_properties = {
-    ["node.disabled"] = true,
-  }
-}
-
-local rule_usb_aad = {
-  matches = {
-    {
-      { "node.description", "equals", "USB Advanced Audio Device Analog Stereo" },
-    },
-  },
-  apply_properties = {
-    ["node.disabled"] = true,
-  }
-}
-
-local rule_usb_pnp_1 = {
-  matches = {
-    {
-      { "node.description", "equals", "USB PnP Audio Device Mono" },
-    },
-  },
-  apply_properties = {
-    ["node.disabled"] = true,
-  }
-}
-local rule_usb_pnp_2 = {
-  matches = {
-    {
-      { "node.description", "equals", "USB PnP Audio Device Analog Stereo" },
-    },
-  },
-  apply_properties = {
-    ["node.disabled"] = true,
-  }
-}
-
-local rule_usb_ga102 = {
-  matches = {
-    {
-      { "node.description", "equals", "GA102 High Definition Audio Controller Digital Stereo (HDMI)" },
-    },
-  },
-  apply_properties = {
-    ["node.disabled"] = true,
-  }
-}
-
 local rule_usb_starship = {
   matches = {
     {
@@ -117,80 +52,47 @@ local rule_usb_starship = {
     },
   },
   apply_properties = {
-    ["node.nick"] = "Starship Audio out",
+    ["node.nick"] = "Soundbar",
     ["media.user.target.role"] = "media",
     ["node.disabled"] = false,
   }
 }
 
-local rule_hdmi = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo" },
-    },
-  },
-  apply_properties = {
-    ["node.nick"] = "Aorus Display HDMI",
-    ["node.disabled"] = true,
-  },
-}
-
-local rule_nvidia_hdmi = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo.2" },
-    },
-  },
-  apply_properties = {
-    ["node.nick"] = "NVidia HDMI",
-    ["node.disabled"] = true,
-  },
-}
-
-local rule_aorus_hdmi = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo.3" },
-    },
-  },
-  apply_properties = {
-    ["node.nick"] = "AORUS Display DP",
-    ["node.disabled"] = true,
-  },
-}
-
-local rule_loopback_pcm_input = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_input.platform-snd_aloop.0.analog-stereo" },
-    },
-  },
-  apply_properties = {
-    ["node.nick"] = "Build-in Audio Input",
-    ["node.disabled"] = true,
-  },
-}
-
-local rule_loopback_pcm_output = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_output.platform-snd_aloop.0.analog-stereo" },
-    },
-  },
-  apply_properties = {
-    ["node.nick"] = "Build-in Audio Output",
-    ["node.disabled"] = true,
-  },
-}
-
 table.insert(alsa_monitor.rules, rule_usb_starship)
-table.insert(alsa_monitor.rules, rule_usb_ga102)
-table.insert(alsa_monitor.rules, rule_usb_aad)
-table.insert(alsa_monitor.rules, rule_usb_pnp_1)
-table.insert(alsa_monitor.rules, rule_usb_pnp_2)
-table.insert(alsa_monitor.rules, rule_brio)
-table.insert(alsa_monitor.rules, rule_hdmi)
-table.insert(alsa_monitor.rules, rule_nvidia_hdmi)
-table.insert(alsa_monitor.rules, rule_aorus_hdmi)
-table.insert(alsa_monitor.rules, rule_loopback_pcm_input)
-table.insert(alsa_monitor.rules, rule_loopback_pcm_output)
+table.insert(alsa_monitor.rules, rule_rode_microphone)
+table.insert(alsa_monitor.rules, rule_microphone)
+table.insert(alsa_monitor.rules, rule_headset)
+table.insert(alsa_monitor.rules, rule_soundux)
+
+local disable_rules = {
+  matches = {
+    -- output/headsets
+    {{ "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo.3" }},
+    {{ "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo.2" }},
+    {{ "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo" }},
+    {{ "node.name", "equals", "alsa_output.platform-snd_aloop.0.analog-stereo" }},
+    {{ "node.name", "equals", "alsa_output.platform-snd_aloop.0.analog-stereo.2" }},
+    {{ "node.name", "equals", "alsa_output.pci-0000_0b_00.1.hdmi-stereo" }},
+    {{ "node.name", "equals", "alsa_output.platform-snd_aloop.0.analog-stereo" }},
+    {{ "node.name", "equals", "alsa_output.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo" }},
+
+    -- input/mic 
+    {{ "node.name", "equals", "alsa_input.platform-snd_aloop.0.analog-stereo" }},
+    {{ "node.name", "equals", "alsa_input.platform-snd_aloop.0.analog-stereo.2" }},
+    {{ "node.name", "equals", "alsa_input.usb-0c76_USB_PnP_Audio_Device-00.mono-fallback" }},
+    {{ "node.name", "equals", "alsa_input.usb-C-Media_Electronics_Inc._USB_Advanced_Audio_Device-00.analog-stereo" }},
+    {{ "node.name", "equals", "alsa_input.usb-046d_BRIO_4K_Stream_Edition_718B3D42-02.analog-stereo" }},
+    
+    -- devices
+    {{ "device.name", "equals", "alsa_card.platform-snd_aloop.0" }},
+    {{ "device.name", "equals", "alsa_card.pci-0000_0b_00.1" }},
+    {{ "device.name", "equals", "alsa_card.usb-C-Media_Electronics_Inc._USB_Advanced_Audio_Device-00" }},
+    {{ "device.name", "equals", "alsa_card.usb-0c76_USB_PnP_Audio_Device-00" }},
+    {{ "device.name", "equals", "alsa_card.usb-046d_BRIO_4K_Stream_Edition_718B3D42-02" }},
+  },
+  apply_properties = {
+    ["node.disabled"] = true,
+  },
+}
+
+table.insert(alsa_monitor.rules, disable_rules)
