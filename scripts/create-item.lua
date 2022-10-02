@@ -25,6 +25,23 @@ for _, r in ipairs(user_config.rules or {}) do
   r.matches = nil
 end
 
+function GetName(si)
+  local si_id = tostring(si.id or si["client.id"])
+  local node_props = si.properties
+  local binary_name = node_props["application.process.binary"]
+  local node_name = node_props["node.name"]
+  local name = "undefined"
+
+  if binary_name and binary_name ~= '' then
+      name = string.format("%s (%s)", binary_name, si_id)
+  elseif node_name and node_name ~= '' then
+      name = string.format("%s (%s)", node_name, si_id)
+  else
+      name = string.format("unknown (%s)", si_id)
+  end
+  return name
+end
+
 -- applies properties from config.rules when asked to
 function rulesApplyProperties(properties)
   for _, r in ipairs(user_config.rules or {}) do
@@ -145,9 +162,12 @@ nodes_om = ObjectManager {
 
 nodes_om:connect("object-added", function (om, node)
   local media_class = node.properties['media.class']
+  local name = GetName(node)
   if string.find (media_class, "Audio") then
+    Log.info("Adding SI Audio Adapter: " .. name)
     addItem (node, "si-audio-adapter")
   else
+    Log.info("Adding SI Node: " .. name)
     addItem (node, "si-node")
   end
 end)
