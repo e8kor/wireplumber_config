@@ -1,59 +1,49 @@
 local rule_microphone = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_input.usb-Kingston_HyperX_QuadCast_S_4100-00.analog-stereo" },
-    },
-  },
+  matches = { {
+    { "node.name", "equals", "alsa_input.usb-Kingston_HyperX_QuadCast_S_4100-00.analog-stereo" },
+  } },
   apply_properties = {
     ["node.nick"] = "HyperX Microphone",
-    ["media.user.target.role"] = "work;comm;media",
+    ["media.user.target.role"] = "work-source;comm-source;media-source",
   },
 }
 
 local rule_rode_microphone = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_input.usb-R__DE_Microphones_Wireless_GO_II_RX_216F2176-01.analog-stereo" },
-    },
-  },
+  matches = { {
+    { "node.name", "equals", "alsa_input.usb-R__DE_Microphones_Wireless_GO_II_RX_216F2176-01.analog-stereo" },
+  } },
   apply_properties = {
     ["node.nick"] = "RODE Microphone",
-    ["media.user.target.role"] = "work;comm;media",
+    ["media.user.target.role"] = "work-source;comm-source;media-source",
   },
 }
 
 local rule_headset = {
-  matches = {
-    {
-      { "node.name", "equals", "alsa_output.usb-Kingston_HyperX_QuadCast_S_4100-00.analog-stereo" },
-    },
-  },
+  matches = { {
+    { "node.name", "equals", "alsa_output.usb-Kingston_HyperX_QuadCast_S_4100-00.analog-stereo" },
+  } },
   apply_properties = {
     ["node.nick"] = "HyperX Headset out",
-    ["media.user.target.role"] = "work;comm;media",
+    ["media.user.target.role"] = "work-sink;comm-sink;media-sink",
   },
 }
 
 local rule_soundux = {
-  matches = {
-    {
-      { "node.name", "equals", "soundux_sink" },
-    },
-  },
+  matches = { {
+    { "node.name", "equals", "soundux_sink" },
+  } },
   apply_properties = {
-    ["media.user.role"] = "soundboard",
-    ["media.user.target.object.name"] = "Communication Source;Communication Sink",
+    ["media.user.role"] = "soundboard-hub",
+    ["media.user.target.node.name"] = "Communication Source;Communication Sink",
   },
 }
 local rule_usb_starship = {
-  matches = {
-    {
+  matches = { {
       { "node.description", "equals", "Starship/Matisse HD Audio Controller Digital Stereo (IEC958)" },
-    },
-  },
+    } },
   apply_properties = {
     ["node.nick"] = "Soundbar",
-    ["media.user.target.role"] = "media",
+    ["media.user.target.role"] = "media-sink",
     ["node.disabled"] = false,
   }
 }

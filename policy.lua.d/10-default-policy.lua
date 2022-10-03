@@ -6,20 +6,21 @@ default_policy.rules = {}
 default_policy.user_rules = {}
 
 default_policy.fallback = {
-  ["media.user.target.role"] = "media"
+  ["media.user.target.role"] = "media-hub"
 }
 
-table.insert(default_policy.user_rules, {
-  name = "VirtualBoxVM",
-  matches = { {
-    { "application.binary.name", "equals", "VirtualBoxVM" },
-  }, {
-    { "application.process.binary", "equals", "VirtualBoxVM" },
-  } },
-  apply_properties = {
-    ["media.user.target.role"] = "work",
-  }
-})
+-- table.insert(default_policy.user_rules, {
+--   name = "VirtualBoxVM",
+--   matches = { {
+--     { "application.binary.name", "equals", "VirtualBoxVM" },
+--   }, {
+--     { "application.process.binary", "equals", "VirtualBoxVM" },
+--   } },
+--   apply_properties = {
+--     ["media.user.target.role"] = "work",
+--   }
+-- })
+
 table.insert(default_policy.user_rules, {
   name = "Firefox",
   matches = { {
@@ -30,59 +31,59 @@ table.insert(default_policy.user_rules, {
   }
 })
 
-table.insert(default_policy.user_rules, {
-  name = "Chromium",
-  matches = { {
-    { "application.process.binary", "matches", "chrome*" }
-  } },
-  apply_properties = {
-    ["media.user.target.role"] = "media"
-  }
-})
+-- table.insert(default_policy.user_rules, {
+--   name = "Chromium",
+--   matches = { {
+--     { "application.process.binary", "matches", "chrome*" }
+--   } },
+--   apply_properties = {
+--     ["media.user.target.role"] = "media"
+--   }
+-- })
 
-table.insert(default_policy.user_rules, {
-  name = "Telegram",
-  matches = { {
-    { "application.process.binary", "equals", "telegram-desktop" }
-  } },
-  apply_properties = {
-    ["media.user.target.role"] = "comm"
-  }
-})
+-- table.insert(default_policy.user_rules, {
+--   name = "Telegram",
+--   matches = { {
+--     { "application.process.binary", "equals", "telegram-desktop" }
+--   } },
+--   apply_properties = {
+--     ["media.user.target.role"] = "comm"
+--   }
+-- })
 
-table.insert(default_policy.user_rules, {
-  name = "Totem Player",
-  matches = { {
-    { "application.process.binary", "equals", "totem" }
-  } },
-  apply_properties = {
-    ["media.user.target.role"] = "media"
-  }
-})
+-- table.insert(default_policy.user_rules, {
+--   name = "Totem Player",
+--   matches = { {
+--     { "application.process.binary", "equals", "totem" }
+--   } },
+--   apply_properties = {
+--     ["media.user.target.role"] = "media"
+--   }
+-- })
 
-table.insert(default_policy.user_rules, {
-  name = "Soundux Soundboard",
-  matches = { {
-    { "node.name", "equals", "soundux_sink" },
-  } },
-  apply_properties = {
-    ["node.autoconnect"] = false,
-    ["node.nick"]        = "Soundux Soundboard",
-    ["media.user.role"]  = "soundboard",
-  },
-})
+-- table.insert(default_policy.user_rules, {
+--   name = "Soundux Soundboard",
+--   matches = { {
+--     { "node.name", "equals", "soundux_sink" },
+--   } },
+--   apply_properties = {
+--     ["node.autoconnect"] = false,
+--     ["node.nick"]        = "Soundux Soundboard",
+--     ["media.user.role"]  = "soundboard",
+--   },
+-- })
 
-table.insert(default_policy.user_rules, {
-  name = "Bypass mapped objects",
-  matches = { {
-    { "media.user.role", "is-present" }
-  },{
-    { "media.user.target.role", "is-present" }
-  },{
-    { "media.user.target.object.name", "is-present" }
-  } },
-  apply_properties = { }
-})
+-- table.insert(default_policy.user_rules, {
+--   name = "Bypass mapped objects",
+--   matches = { {
+--     { "media.user.role", "is-present" }
+--   },{
+--     { "media.user.target.role", "is-present" }
+--   },{
+--     { "media.user.target.node.name", "is-present" }
+--   } },
+--   apply_properties = { }
+-- })
 
 default_policy.policy = {
   ["move"] = true, -- moves session items when metadata target.node changes

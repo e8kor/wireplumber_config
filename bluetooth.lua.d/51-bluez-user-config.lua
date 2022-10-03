@@ -6,7 +6,7 @@ local rule_trekz = {
   },
   apply_properties = {
     ["node.nick"] = "Trekz Headset",
-    ["media.user.target.role"] = "work;comm;media",
+    ["media.user.target.role"] = "work-sink;comm-sink;media-sink",
   },
 }
 
@@ -18,7 +18,7 @@ local rule_philips = {
   },
   apply_properties = {
     ["node.nick"] = "Philips Headset",
-    ["media.user.target.role"] = "work;comm;media",
+    ["media.user.target.role"] = "work-sink;comm-sink;media-sink",
   },
 }
 
@@ -30,7 +30,7 @@ local rule_bose = {
   },
   apply_properties = {
     ["node.nick"] = "Bose Headset",
-    ["media.user.target.role"] = "work;comm;media",
+    ["media.user.target.role"] = "work-sink;comm-sink;media-sink",
   },
 }
 
