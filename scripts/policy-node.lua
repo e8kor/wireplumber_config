@@ -122,6 +122,8 @@ function createLink (si, si_target, passthrough, exclusive)
         si_flags[si_id].failed_count = 0
       end
       Log.info (l, "activated si-standard-link")
+      -- TODO: disable links due to user managed scripts
+      l:remove ()
     end
   end)
 end
@@ -955,7 +957,7 @@ linkables_om:connect("object-added", function (om, si)
   if si_props["item.node.type"] ~= "stream" then
     scheduleRescan ()
   else
-    -- TODO make own policy node script that replace that undefined target
+    -- TODO: make own policy node script that replace that undefined target
     handleLinkable (si)
   end
 end)
