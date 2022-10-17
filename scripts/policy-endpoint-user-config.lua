@@ -19,7 +19,7 @@ ActiveStatus = Feature.SessionItem.ACTIVE
 HostOM = ObjectManager {
     Interest {
         type = "SiLinkable",
-        Constraint { "media.user.role", "is-present" },
+        Constraint { "media.tag", "is-present" },
     }
 }
 
@@ -27,35 +27,15 @@ LinksOM = ObjectManager {
     Interest {
         type = "SiLink",
         -- only handle links created by this policy
-        Constraint { "media.user.managed", "=", true, type = "pw-global" },
     }
 }
 
-DevicesOM = ObjectManager {
+ClientsOM = ObjectManager {
     Interest {
         type = "SiLinkable",
-        Constraint { "media.user.target.role", "is-present" },
+        Constraint { "media.target.tag", "is-present" },
     }
 }
-
-ApplicationOM = ObjectManager {
-    Interest {
-        type = "SiLinkable",
-        -- only handle si-audio-adapter and si-node
-        Constraint { "media.user.target.role", "is-absent" },
-        Constraint { "media.user.role", "is-absent" },
-        Constraint { "item.factory.name", "c", "si-audio-adapter", "si-node" },
-        Constraint { "active-features", "!", 0, type = "gobject" },
-    }
-}
-
-function LogInfo(msg)
-    Log.info(msg)
-end
-
-function LogWarn(msg)
-    Log.warning(msg)
-end
 
 function ToString(o)
     if type(o) == 'table' then
@@ -119,9 +99,11 @@ function GetProperties(si_linkable)
     if (
         props and
         props["media.class"] and
-        props["media.user.role"] or
-        props["media.user.target.role"]
-    ) then result = props
+        props["media.tag"] or
+        props["media.target.tag"] or
+        props["target.object"]
+    ) then
+        result = props
     else
         local node = si_linkable:get_associated_proxy("node")
         result = node.properties
@@ -133,14 +115,14 @@ end
 function InsertExtras(properties)
     local has_match = false
     for _, r in ipairs(config.rules or {}) do
-        -- LogInfo("checking rule: " .. ToString(r))
+        -- Log.info("checking rule: " .. ToString(r))
         if r.apply_properties then
             for _, interest in ipairs(r.interests) do
-                -- LogInfo(".... checking interest: " .. ToString(interest))
+                -- Log.info(".... checking interest: " .. ToString(interest))
                 if interest:matches(properties) then
                     has_match = true
                     for k, v in pairs(r.apply_properties) do
-                        -- LogInfo("inserting property with " .. k .. ": " .. v)
+                        -- Log.info("inserting property with " .. k .. ": " .. v)
                         properties[k] = v
                     end
                 end
@@ -148,10 +130,10 @@ function InsertExtras(properties)
         end
     end
     if has_match == false then
-        -- LogInfo("no interests matched, applying fallback properties")
+        -- Log.info("no interests matched, applying fallback properties")
         for k, v in pairs(config.fallback) do
             if not properties[k] then
-                -- LogInfo("inserting fallback property with " .. k .. ": " .. v)
+                -- Log.info("inserting fallback property with " .. k .. ": " .. v)
                 properties[k] = v
             end
         end
@@ -159,23 +141,23 @@ function InsertExtras(properties)
     return properties
 end
 
-function MatchInputToOutput(si1, si2)
-    local props = GetProperties(si1)
+function MatchInputToOutput(client_si, si)
+    local props = GetProperties(client_si)
     if props["item.node.direction"] == "output" or
        props["media.class"] == "Stream/Output/Audio"
     then
         -- playback
-        LogInfo("it is playback")
+        Log.info("it is playback")
         return {
-            ["in"] = si2,
-            ["out"] = si1
+            ["in"] = si,
+            ["out"] = client_si
         }
     else
         -- capture
-        LogInfo("it is capture")
+        Log.info("it is capture")
         return {
-            ["in"] = si1,
-            ["out"] = si2
+            ["in"] = client_si,
+            ["out"] = si
         }
     end
 
@@ -190,7 +172,7 @@ function EstablishLink(connection)
     local out_name = GetName(out_si)
     local in_name = GetName(in_si)
 
-    LogInfo(string.format("establishing link %s <-> %s", out_name, in_name))
+    Log.info(string.format("establishing link %s <-> %s", out_name, in_name))
 
     -- create and configure link
     local link = SessionItem("si-standard-link")
@@ -210,10 +192,10 @@ function EstablishLink(connection)
         -- ["is.policy.item.link"] = true,
         -- ["is.policy.endpoint.client.link"] = true,
     } then
-        LogWarn("failed to configure si-standard-link")
+        Log.warning("failed to configure si-standard-link")
         return
     else
-        LogInfo("si-standard-link configured successfully")
+        Log.info("si-standard-link configured successfully")
     end
 
     -- register
@@ -224,10 +206,10 @@ function EstablishLink(connection)
         local in_name = props["in.node.name"]
         local msg = string.format("activating link %s <-> %s", out_name, in_name)
         if e then
-            LogInfo("failed to activate si-standard-link " .. msg .. ": " .. ToString(e))
+            Log.info("failed to activate si-standard-link " .. msg .. ": " .. ToString(e))
             l:remove()
         else
-            LogInfo("activated si-standard-link " .. msg)
+            Log.info("activated si-standard-link " .. msg)
         end
     end)
 end
@@ -262,11 +244,11 @@ function GetLookupMediaClassFromLinkable(si)
     return media_classes[media_class] or {}
 end
 
-function IsHubToHubOrSelfLink(si1, si2)
-    local si1_prop = GetProperties(si1)
-    local si2_prop = GetProperties(si2)
-    local isSelfLink = si1.id == si2.id
-    local isHubToHub = string.find(si1_prop["node.description"] or "", "Hub") and string.find(si2_prop["node.description"] or "", "Hub")
+function IsHubToHubOrSelfLink(client_si, si)
+    local client_si_prop = GetProperties(client_si)
+    local si_prop = GetProperties(si)
+    local isSelfLink = client_si.id == si.id
+    local isHubToHub = string.find(client_si_prop["node.description"] or "", "Hub") and string.find(si_prop["node.description"] or "", "Hub")
     return isSelfLink or isHubToHub
 end
 
@@ -277,7 +259,7 @@ function FindByPropName(prop_name, keywords, om, targets)
                 Constraint { prop_name, "matches", '*' .. keyword .. '*' },
             } do
                 local name = GetName(si)
-                LogInfo("queueing target node: " .. name)
+                Log.info("queueing target node: " .. name)
                 table.insert(targets, si)
             end
         end
@@ -287,73 +269,55 @@ end
 
 function CreateNodeLink(client_si)
     local from_name = GetName(client_si)
-    LogInfo("Creating links for linkable node: " .. from_name)
-    -- LogInfo(".. si properties: ")
+    Log.info("Creating links for linkable node: " .. from_name)
+    -- Log.info(".. si properties: ")
     -- for key, value in pairs(from_si.properties) do
-    --     LogInfo(".... " .. key .. ": " .. value)
+    --     Log.info(".... " .. key .. ": " .. value)
     -- end
 
-    local from_props = GetProperties(client_si)
-    -- LogInfo(".. node properties: ")
+    local client_props = GetProperties(client_si)
+    -- Log.info(".. node properties: ")
     -- for key, value in pairs(from_props) do
-    --     LogInfo(".... " .. key .. ": " .. value)
+    --     Log.info(".... " .. key .. ": " .. value)
     -- end
 
     local lookup_media_classes = GetLookupMediaClassFromLinkable(client_si) or {}
-    LogInfo(".. looking for media classes: " .. ToString(lookup_media_classes))
-    
+    Log.info(".. looking for media classes: " .. ToString(lookup_media_classes))
 
-    local lookup_roles = SplitStringByDelimiter(from_props["media.user.target.role"], ";") or {}
-    LogInfo(".. looking for media roles " .. ToString(lookup_roles))
-
-    local lookup_node_names = SplitStringByDelimiter(from_props["media.user.target.node.name"], ";") or {}
-    LogInfo(".. looking for user node names: " .. ToString(lookup_node_names))
-
-    local role_node_names = SplitStringByDelimiter(from_props["media.user.target.role.node.name"], ";") or {}
-    LogInfo(".. looking for role.node.name: " .. ToString(role_node_names))
+    local lookup_roles = SplitStringByDelimiter(client_props["media.target.tag"], ";") or {}
+    Log.info(".. looking for media roles " .. ToString(lookup_roles))
 
     local targets = {}
     for _, lookup_role in ipairs(lookup_roles) do
         local cons = {}
-        table.insert(cons, Constraint { "media.user.role", "matches", '*' .. lookup_role .. '*' })
+        table.insert(cons, Constraint { "media.tag", "matches", '*' .. lookup_role .. '*' })
         if next(lookup_media_classes) ~= nil then
             table.insert(cons,  Constraint { "media.class", "in-list", table.unpack(lookup_media_classes) } )
         end
         for si in HostOM:iterate{table.unpack(cons)} do
             local to_name = GetName(si)
             if not IsHubToHubOrSelfLink(client_si, si) then
-                LogInfo("adding target node: " .. to_name)
-                LogInfo(".. with role: " .. si.properties["media.user.role"])
-                LogInfo(".. with media class: " .. si.properties["media.class"])
+                Log.info("adding target node: " .. to_name)
+                Log.info(".. with role: " .. si.properties["media.tag"])
+                Log.info(".. with media class: " .. si.properties["media.class"])
 
                 table.insert(targets, MatchInputToOutput(client_si, si))
             end
         end
     end
 
-    local by_role_node_name = {}
-    by_role_node_name = FindByPropName("node.name", role_node_names, ApplicationOM, by_role_node_name)
+    local lookup_node_names = SplitStringByDelimiter(client_props["target.object"], ";") or {}
+    Log.info(".. looking for user node names: " .. ToString(lookup_node_names))
 
-    for _, si in ipairs(by_role_node_name) do
-        local to_name = GetName(si)
-            LogInfo("adding target node: " .. to_name)
-            table.insert(targets, MatchInputToOutput(client_si, si))
-    end
+    -- local by_node_name = {}
+    -- by_node_name = FindByPropName("node.name", lookup_node_names, HostOM, by_node_name)
+    -- by_node_name = FindByPropName("node.name", lookup_node_names, ClientsOM, by_node_name)
 
-    local by_node_name = {}
-    by_node_name = FindByPropName("node.name", lookup_node_names, HostOM, by_node_name)
-    by_node_name = FindByPropName("node.name", lookup_node_names, DevicesOM, by_node_name)
-    by_node_name = FindByPropName("node.name", lookup_node_names, ApplicationOM, by_node_name)
-
-    for _, si in ipairs(by_node_name) do
-        local to_name = GetName(si)
-        LogInfo("adding target node: " .. to_name)
-        local t = {
-            ['out'] = si,
-            ['in'] = client_si,
-        }
-        table.insert(targets, t)
-    end
+    -- for _, si in ipairs(by_node_name) do
+    --     local to_name = GetName(si)
+    --     Log.info("adding target node: " .. to_name)
+    --     table.insert(targets, MatchInputToOutput(client_si, si))
+    -- end
 
     local visited = FindExistingLinksForLinkable(client_si)
 
@@ -362,7 +326,7 @@ function CreateNodeLink(client_si)
         if not visited[to_si_name] then
             EstablishLink(details)
         else
-            LogInfo(".. skipping node " .. to_si_name .. ", as already connected")
+            Log.info(".. skipping node " .. to_si_name .. ", as already connected")
         end
     end
 
@@ -375,28 +339,27 @@ function RemoveLinksFromLinkable(si, is_all)
         link_type = "all"
     end
     local name = GetName(si)
-    LogInfo(string.format("Unhandling %s links for item: %s", link_type, name))
+    Log.info(string.format("Unhandling %s links for item: %s", link_type, name))
     local visited = FindExistingLinksForLinkable(si)
     for id, link in pairs(visited) do
         local is_user_managed = link.properties["media.user.managed"]
         if (is_all or not is_user_managed) then
             link:remove()
-            LogInfo("... link removed to " .. id)
+            Log.info("... link removed to " .. id)
         end
     end
 end
 
 LinksOM:connect("object-added", function(om, si)
-    LogInfo("Link was added: " .. si.id)
+    Log.info("Link was added: " .. si.id)
 end)
 
 LinksOM:connect("object-removed", function(om, si)
-    LogInfo("Link was removed: " .. si.id)
+    Log.info("Link was removed: " .. si.id)
 end)
 
-
 HostOM:connect("object-added", function(om, si)
-    LogInfo("Host linkable added: " .. si.id)
+    Log.info("Host linkable added: " .. si.id)
     RemoveLinksFromLinkable(si, false)
     -- for si in DevicesOM:iterate() do
     --     RemoveLinksFromLinkable(si, false)
@@ -406,52 +369,30 @@ end)
 
 HostOM:connect("object-removed", function(om, si)
     local name = GetName(si)
-    LogInfo("Host linkable removed: " .. name)
+    Log.info("Host linkable removed: " .. name)
 end)
 
-DevicesOM:connect("object-added", function(om, si)
-    local name = GetName(si)
-    LogInfo("Linking user managed new device: " .. name)
-    -- RemoveLinksFromLinkable(si, true)
-    CreateNodeLink(si)
-end)
-
-DevicesOM:connect("objects-changed", function(om)
-    LogInfo("Managed device changed")
-    -- for si in om:iterate() do
-    --     RemoveLinksFromLinkable(si, false)
-    --     CreateNodeLink(si)
-    -- end
-end)
-
-DevicesOM:connect("object-removed", function(om, si)
-    local name = GetName(si)
-    LogInfo("Unlinking user managed device removed: " .. name)
-    RemoveLinksFromLinkable(si, true)
-end)
-
-ApplicationOM:connect("objects-changed", function(om)
-    LogInfo("Linking returning non user managed application")
+ClientsOM:connect("objects-changed", function(om)
+    Log.info("Linking returning non user managed application")
     for si in om:iterate() do
         -- RemoveLinksFromLinkable(si, false)
         CreateNodeLink(si)
     end
 end)
 
-ApplicationOM:connect("object-added", function(om, si)
+ClientsOM:connect("object-added", function(om, si)
     local name = GetName(si)
-    LogInfo("Linking non user managed new application: " .. name)
+    Log.info("Linking non user managed new application: " .. name)
     -- RemoveLinksFromLinkable(si, true)
     CreateNodeLink(si)
 end)
 
-ApplicationOM:connect("object-removed", function(om, si)
+ClientsOM:connect("object-removed", function(om, si)
     local name = GetName(si)
-    LogInfo("Unlinking non user managed application: " .. name)
+    Log.info("Unlinking non user managed application: " .. name)
     RemoveLinksFromLinkable(si, true)
 end)
 
 HostOM:activate()
 LinksOM:activate()
-DevicesOM:activate()
-ApplicationOM:activate()
+ClientsOM:activate()

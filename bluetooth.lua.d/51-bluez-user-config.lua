@@ -9,7 +9,7 @@ local rule_trekz = {
   },
   apply_properties = {
     ["node.nick"] = "Trekz Headset",
-    ["media.user.target.role"] = "work-hub;comm-hub;media-hub",
+    ["media.target.tag"] = "work-hub;comm-hub;media-hub",
   },
 }
 
@@ -21,7 +21,7 @@ local rule_philips = {
   },
   apply_properties = {
     ["node.nick"] = "Philips Headset",
-    ["media.user.target.role"] = "work-hub;comm-hub;media-hub",
+    ["media.target.tag"] = "work-hub;comm-hub;media-hub",
   },
 }
 
@@ -33,13 +33,9 @@ local rule_bose = {
   },
   apply_properties = {
     ["node.nick"] = "Bose Headset",
-    ["media.user.target.role"] = "work-hub;comm-hub;media-hub",
+    ["media.target.tag"] = "work-hub;comm-hub;media-hub",
   },
 }
-
-table.insert(bluez_monitor.rules, rule_philips)
-table.insert(bluez_monitor.rules, rule_trekz)
-table.insert(bluez_monitor.rules, rule_bose)
 
 local rule_disable = {
   matches = {
@@ -48,8 +44,11 @@ local rule_disable = {
     },
   },
   apply_properties = {
-    ["node.disabled"] = true,
+    ["device.disabled"] = true,
   },
 }
 
+table.insert(bluez_monitor.rules, rule_philips)
+table.insert(bluez_monitor.rules, rule_trekz)
+table.insert(bluez_monitor.rules, rule_bose)
 table.insert(bluez_monitor.rules, rule_disable)

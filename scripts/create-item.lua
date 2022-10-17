@@ -72,6 +72,8 @@ function configProperties(node)
     ["object.path"] = np["object.path"],
     ["object.serial"] = np["object.serial"],
     ["target.object"] = np["target.object"],
+    ["media.target.tag"] = np["media.target.tag"],
+    ["media.tag"] = np["media.tag"],
     ["priority.session"] = np["priority.session"],
     ["device.id"] = np["device.id"],
     ["card.profile.device"] = np["card.profile.device"],

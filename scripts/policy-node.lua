@@ -123,7 +123,7 @@ function createLink (si, si_target, passthrough, exclusive)
       end
       Log.info (l, "activated si-standard-link")
       -- TODO: disable links due to user managed scripts
-      l:remove ()
+      -- l:remove ()
     end
   end)
 end
@@ -816,6 +816,7 @@ linkables_om = ObjectManager {
   Interest {
     type = "SiLinkable",
     -- only handle si-audio-adapter and si-node
+    Constraint { "media.target.tag", "is-absent" },
     Constraint { "item.factory.name", "c", "si-audio-adapter", "si-node" },
     Constraint { "active-features", "!", 0, type = "gobject" },
   }
