@@ -74,9 +74,14 @@ local disable_device_rules = {
     -- devices
     {{ "device.name", "equals", "alsa_card.platform-snd_aloop.0" }},
     {{ "device.name", "equals", "alsa_card.pci-0000_0b_00.1" }},
+    {{ "device.name", "equals", "alsa_card.pci-0000_0b_00.1.8" }},
+    {{ "device.name", "equals", "alsa_card.pci-0000_0c_00.1.7" }},
     {{ "device.name", "equals", "alsa_card.usb-C-Media_Electronics_Inc._USB_Advanced_Audio_Device-00" }},
+    {{ "device.name", "equals", "alsa_card.usb-C-Media_Electronics_Inc._USB_Advanced_Audio_Device-00.8" }},
     {{ "device.name", "equals", "alsa_card.usb-0c76_USB_PnP_Audio_Device-00" }},
+    {{ "device.name", "equals", "alsa_card.usb-0c76_USB_PnP_Audio_Device-00.8" }},
     {{ "device.name", "equals", "alsa_card.usb-046d_BRIO_4K_Stream_Edition_718B3D42-02" }},
+    {{ "device.name", "equals", "alsa_card.usb-046d_BRIO_4K_Stream_Edition_718B3D42-02.8" }},
   },
   apply_properties = {
     ["device.disabled"] = true,
